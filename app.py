@@ -161,21 +161,63 @@ if st.session_state.retriever is not None:
             st.write(question)
 
 
-        # Generate answer
+        # --------------------------------------------------
+        # GENERATE ANSWER
+        # --------------------------------------------------
+
         with st.chat_message("assistant"):
 
-            with st.spinner(
-                "Searching the document..."
-            ):
+            try:
 
-                answer = answer_question(
-                    question=question,
-                    retriever=st.session_state.retriever,
-                    llm=st.session_state.llm,
-                    chat_history=st.session_state.chat_history
-                )
+                with st.spinner(
+                    "Searching the document..."
+                ):
 
-            st.write(answer)
+                    answer = answer_question(
+                        question=question,
+                        retriever=st.session_state.retriever,
+                        llm=st.session_state.llm,
+                        chat_history=st.session_state.chat_history
+                    )
+
+                st.write(answer)
+
+            except Exception as e:
+
+                error_message = str(e).lower()
+
+                # ------------------------------------------
+                # GEMINI QUOTA / RATE LIMIT ERROR
+                # ------------------------------------------
+
+                if (
+                    "resource_exhausted" in error_message
+                    or "quota" in error_message
+                    or "429" in error_message
+                    or "rate limit" in error_message
+                ):
+
+                    answer = (
+                        "⚠️ **Daily AI usage limit reached**\n\n"
+                        "The chatbot has reached its daily Gemini API "
+                        "usage limit. Please try again later."
+                    )
+
+                    st.warning(answer)
+
+                # ------------------------------------------
+                # OTHER GEMINI/API ERRORS
+                # ------------------------------------------
+
+                else:
+
+                    answer = (
+                        "⚠️ **Unable to generate an answer**\n\n"
+                        "The AI service encountered an error. "
+                        "Please try again later."
+                    )
+
+                    st.error(answer)
 
 
         # --------------------------------------------------
