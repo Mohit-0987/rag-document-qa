@@ -161,10 +161,7 @@ if st.session_state.retriever is not None:
             st.write(question)
 
 
-        # --------------------------------------------------
-        # GENERATE ANSWER
-        # --------------------------------------------------
-
+        # Generate answer
         with st.chat_message("assistant"):
 
             try:
@@ -182,39 +179,32 @@ if st.session_state.retriever is not None:
 
                 st.write(answer)
 
+
             except Exception as e:
 
                 error_message = str(e).lower()
 
-                # ------------------------------------------
-                # GEMINI QUOTA / RATE LIMIT ERROR
-                # ------------------------------------------
-
+                # Handle Gemini quota / rate-limit errors
                 if (
                     "resource_exhausted" in error_message
                     or "quota" in error_message
-                    or "429" in error_message
                     or "rate limit" in error_message
+                    or "429" in error_message
                 ):
 
                     answer = (
-                        "⚠️ **Daily AI usage limit reached**\n\n"
-                        "The chatbot has reached its daily Gemini API "
-                        "usage limit. Please try again later."
+                        "⚠️ AI usage limit reached\n\n"
+                        "The chatbot has reached its AI usage limit. "
+                        "Please try again later."
                     )
 
                     st.warning(answer)
 
-                # ------------------------------------------
-                # OTHER GEMINI/API ERRORS
-                # ------------------------------------------
-
                 else:
 
                     answer = (
-                        "⚠️ **Unable to generate an answer**\n\n"
-                        "The AI service encountered an error. "
-                        "Please try again later."
+                        "Something went wrong while processing "
+                        "your question. Please try again later."
                     )
 
                     st.error(answer)
